@@ -3,22 +3,44 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 class Square extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            value: null
+        };
+        this.select = this.select.bind(this);
+    }
+
+    select(){
+        this.props.updateTurn();
+        this.setState( () => (this.props.turn ? {value: "x"} : {value: "o"} ));
+    }
     render() {
         return (
             <button className="square" onClick={this.select}>
+                {this.state.value}
             </button>
         );
     }
 }
 
 class Board extends React.Component {
-
+    constructor(props) {
+        super(props);
+        this.state = {
+            turn: false
+        };
+        this.updateTurn = this.updateTurn.bind(this);
+    }
+    updateTurn(){
+        this.setState((prevState)=>({turn: !prevState.turn}));
+    }
     renderSquare(i) {
-        return <Square />;
+        return <Square turn={this.state.turn} updateTurn={this.updateTurn}/>;
     }
 
     render() {
-        const status = 'Next player: X';
+        const status = `Next player: ${this.state.turn ? "2" : "1"}`;
 
         return (
             <div>
