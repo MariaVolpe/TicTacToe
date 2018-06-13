@@ -65,6 +65,7 @@ class Board extends Component {
 
         // check for a winner
         const winner = calculateWinner(this.state.squares);
+
         // if there is a new winner and the state has not already been updated to reflect that, update state
         if (winner && !this.state.winner){
             const status = ` Player ${(winner==="o" ? "1" : "2")} wins!`;
@@ -118,6 +119,16 @@ function calculateWinner(squares){
         }
       }
       return null;
+}
+
+// calculate if board is full and there is no winner
+function checkLose(squares){
+    squares.forEach( (square) => {
+        if (!square.marked){
+            return false;
+        }
+    });
+    return true;
 }
 
 export default Board;
