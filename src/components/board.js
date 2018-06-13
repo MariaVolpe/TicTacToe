@@ -4,9 +4,11 @@ import Square from './square';
 class Board extends Component {
     constructor(props) {
         super(props);
-
+        //only 9 turns can be taken before the board is full and the game is tied
+        this.maxTurns = 9;
         // intialize squares: blank and not marked
         // turn - false for player 1 (o), true for player 2 (x)
+        // turnCount - number of turns taken
         // status - text for board
         // winner - if someone has won the game
         this.state = {
@@ -15,6 +17,7 @@ class Board extends Component {
                 marked: false
                 }),
             turn: false,
+            turnCount: 0,
             status: "Player 1's turn",
             end: false
         };
@@ -33,7 +36,7 @@ class Board extends Component {
         //create new status to show who moves next
         const status = `Player ${this.state.turn ? "1" : "2"}'s turn`;
         //update state
-        this.setState((prevState)=>({squares, turn: !prevState.turn, status}));   
+        this.setState((prevState)=>({squares, turn: !prevState.turn, turnCount: ++prevState.turnCount, status,}));   
     }
     renderSquare(i) {
         return <Square
@@ -55,7 +58,7 @@ class Board extends Component {
             //create new status to show who moves next
             const status = `Player ${this.turn ? "1" : "2"}'s turn`;
       
-            this.setState(() => ({ status, squares, winner: false } ));
+            this.setState(() => ({ status, squares, end: false, turnCount: 0 } ));
             
             // call reset to unflag board as to be reset
             this.props.reset.call();
@@ -64,18 +67,17 @@ class Board extends Component {
 
         // check for a winner or full board
         const winner = calculateWinner(this.state.squares);
-        const lose = checkLose(this.state.squares);
-        console.log("lose: " + lose);
 
         // if there is a new winner and the state has not already been updated to reflect that, update state
+        console.log(winner);
         if (winner && !this.state.end){
             const status = ` Player ${(winner==="o" ? "1" : "2")} wins!`;
             this.props.handleWin(winner);
             // loser goes first in next game
             this.setState(() => ({ status, end: true, turn: winner === "o" ? true : false }));
         }
-        else if (lose && !this.state.end){
-            const status = "Game Over";
+        else if (this.state.turnCount >= this.maxTurns && !this.state.end){
+            const status = "Tie!";
             this.props.handleEnd();
             this.setState(() => ({ status, end: true }));
         }
@@ -126,17 +128,5 @@ function calculateWinner(squares){
       return null;
 }
 
-// check if board is full and there is no winner
-// returns true if board is full
-function checkLose(squares){
-    console.log(squares);
-    for (let square in squares){
-        if (!square.marked){
-            return false;
-        }
-    }
-    console.log("2");
-    return true;
-}
 
 export default Board;
