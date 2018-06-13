@@ -16,7 +16,7 @@ class Board extends Component {
                 }),
             turn: false,
             status: "Player 1's turn",
-            winner: false
+            end: false
         };
         this.handleClick = this.handleClick.bind(this);
         this.renderSquare = this.renderSquare.bind(this);
@@ -39,7 +39,7 @@ class Board extends Component {
         return <Square
             turn={this.state.turn}
             value={this.state.squares[i].value}
-            winner={this.props.winner}
+            end={this.props.end}
             handleClick={ () => this.handleClick(i) }/>;
     }
     // when board updates check for a winner or flag to reset board
@@ -52,7 +52,6 @@ class Board extends Component {
                     value: null,
                     marked: false
                     });
-            const turn = turn;
             //create new status to show who moves next
             const status = `Player ${this.turn ? "1" : "2"}'s turn`;
       
@@ -63,16 +62,22 @@ class Board extends Component {
             return;
         }
 
-        // check for a winner
+        // check for a winner or full board
         const winner = calculateWinner(this.state.squares);
+        const lose = checkLose(this.state.squares);
+        console.log("lose: " + lose);
 
         // if there is a new winner and the state has not already been updated to reflect that, update state
-        if (winner && !this.state.winner){
+        if (winner && !this.state.end){
             const status = ` Player ${(winner==="o" ? "1" : "2")} wins!`;
             this.props.handleWin(winner);
             // loser goes first in next game
-            this.setState(() => ({ status, winner: true, turn: winner === "o" ? true : false }));
-            
+            this.setState(() => ({ status, end: true, turn: winner === "o" ? true : false }));
+        }
+        else if (lose && !this.state.end){
+            const status = "Game Over";
+            this.props.handleEnd();
+            this.setState(() => ({ status, end: true }));
         }
     }
     // render board with 9 squares
@@ -121,13 +126,16 @@ function calculateWinner(squares){
       return null;
 }
 
-// calculate if board is full and there is no winner
+// check if board is full and there is no winner
+// returns true if board is full
 function checkLose(squares){
-    squares.forEach( (square) => {
+    console.log(squares);
+    for (let square in squares){
         if (!square.marked){
             return false;
         }
-    });
+    }
+    console.log("2");
     return true;
 }
 
